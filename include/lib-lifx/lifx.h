@@ -14,6 +14,9 @@
 #include <unordered_map>
 #include <utility>
 
+#include <limits.h>
+#include <string.h>
+
 namespace lifx
 {
 
