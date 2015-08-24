@@ -362,7 +362,8 @@ namespace lifx
 
   NetworkHeader ToNetwork(const Header& h)
   {
-    NetworkHeader nh = { 0, };
+#ifdef _WIN32
+    NetworkHeader nh = { };
     nh.frame = h.size;
     nh.frame |= h.protocol << 16;
     nh.frame |= h.addressable << 28;
@@ -397,11 +398,15 @@ namespace lifx
     //nh.reserved = h.reserved;
 
     return std::move(nh);
+#else
+    return h;
+#endif
   }
 
   Header FromNetwork(const NetworkHeader& nh)
   {
-    Header h = { 0, };
+#ifdef _WIN32
+    Header h = { };
 
     // reserved = nh.reserved; // 16
 
@@ -437,6 +442,9 @@ namespace lifx
     h.source = (nh.frame >> 32) & 0xFFFFFFFF; //32
 
     return std::move(h);
+#else
+    return nh;
+#endif
   }
 
 } // namespace lifx

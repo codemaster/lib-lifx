@@ -13,16 +13,6 @@ namespace lifx
 #pragma pack(push, 1)
   typedef struct
   {
-    uint64_t frame;
-    uint64_t target;
-    uint64_t frame_address;
-    uint64_t time;
-    uint16_t type;
-  uint64_t:64;
-  } NetworkHeader;
-
-  typedef struct
-  {
     // Frame - 64
     uint16_t  size;
     uint16_t  protocol : 12;
@@ -35,13 +25,27 @@ namespace lifx
     uint8_t   site[6];
     uint8_t   ack_required : 1;
     uint8_t   res_required : 1;
-  uint8_t:6;
+    uint8_t:6;
     uint8_t   sequence;
     // Protocol Header - 96
     uint64_t  at_time;
     uint16_t  type;
-  uint16_t:16;
+    uint16_t:16;
   } Header;
+
+#ifdef _WIN32
+  typedef struct
+  {
+    uint64_t frame;
+    uint64_t target;
+    uint64_t frame_address;
+    uint64_t time;
+    uint16_t type;
+    uint64_t:64;
+  } NetworkHeader;
+#else
+  typedef Header NetworkHeader;
+#endif
 
   typedef struct
   {
