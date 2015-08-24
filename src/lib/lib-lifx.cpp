@@ -83,7 +83,7 @@ namespace lifx
     WSACleanup();
 #else
     // Close the socket
-    close(client_socket);
+    close(sock);
 #endif
   }
 
