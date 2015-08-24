@@ -131,7 +131,7 @@ template<typename T>
 uint8_t LifxClient::Send(const T& message, const uint8_t target[8])
 {
   // Create header
-  lifx::Header header = { 0, };
+  lifx::Header header = { };
   header.size = lifx::LIFX_HEADER_SIZE;
   header.origin = 0;
   header.tagged = T::type == message::device::GetService::type ? 1 : 0;

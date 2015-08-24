@@ -22,9 +22,9 @@
 namespace
 {
   constexpr int sockAddrLen = sizeof(sockaddr_in);
-  struct sockaddr_in listen_addr = { 0, };
-  struct sockaddr_in send_direct_addr = { 0, };
-  struct sockaddr_in broadcast_addr = { 0, };
+  struct sockaddr_in listen_addr = { };
+  struct sockaddr_in send_direct_addr = { };
+  struct sockaddr_in broadcast_addr = { };
   int sock;
 }
 
@@ -117,7 +117,7 @@ namespace lifx
       std::array<char, MAX_LIFX_PACKET_SIZE> buffer;
       recv(sock, buffer.data(), MAX_LIFX_PACKET_SIZE, 0);
 
-      NetworkHeader nh = { 0, };
+      NetworkHeader nh = { };
       memcpy(&nh, buffer.data(), LIFX_HEADER_SIZE);
       auto header = FromNetwork(nh);
 
