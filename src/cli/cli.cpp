@@ -176,25 +176,21 @@ int main(int argc, char** argv)
     if (msg.service == lifx::SERVICE_UDP)
     {
       Lightbulb bulb {};
-      bulb.mac_address[0] = header.target[0];
-      bulb.mac_address[1] = header.target[1];
-      bulb.mac_address[2] = header.target[2];
-      bulb.mac_address[3] = header.target[3];
-      bulb.mac_address[4] = header.target[4];
-      bulb.mac_address[5] = header.target[5];
-      bulb.mac_address[6] = header.target[6];
-      bulb.mac_address[7] = header.target[7];
+      for (auto i : {0, 1, 2, 3, 4, 5, 6, 7})
+      {
+        bulb.mac_address[i] = header.target[i];
+      }
 
       g_lightbulbs[MacToNum(header.target)] = bulb;
 
       HandleCallback<lifx::message::device::StateLocation>(
-        [](Lightbulb& bulb, const auto& msg)
+        [](Lightbulb& bulb, const lifx::message::device::StateLocation& msg)
       {
         bulb.location = { msg.label, msg.updated_at };
       });
 
       HandleCallback<lifx::message::device::StateVersion>(
-        [](Lightbulb& bulb, const auto& msg)
+        [](Lightbulb& bulb, const lifx::message::device::StateVersion& msg)
       {
         bulb.version = { msg.vendor, msg.product, msg.version };
 
@@ -202,7 +198,7 @@ int main(int argc, char** argv)
       });
 
       HandleCallback<lifx::message::device::StateGroup>(
-        [](Lightbulb& bulb, const auto& msg)
+        [](Lightbulb& bulb, const lifx::message::device::StateGroup& msg)
       {
         bulb.group = { msg.label, msg.updated_at };
 
@@ -210,7 +206,7 @@ int main(int argc, char** argv)
       });
 
       HandleCallback<lifx::message::light::State>(
-        [](Lightbulb& bulb, const auto& msg)
+        [](Lightbulb& bulb, const lifx::message::light::State& msg)
       {
         bulb.power = msg.power > 0;
         bulb.label = msg.label;
