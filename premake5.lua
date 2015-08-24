@@ -28,12 +28,19 @@ solution "lib-lifx"
 		dependson { "lib-lifx" }
 		links { "lib-lifx" }
 		includedirs { "./include/", "./src/cli/" }
+
+		if os.get() == 'macosx' then
+			buildoptions
+			{
+				'-Wno-c++14-extensions',
+			}
+		end
 		
 		CommonConfig()
 		
 	project "lib-lifx"
 		kind "StaticLib"
-		targetname "liblifx"
+		targetname "lifx"
 		files { "./src/lib/*.cpp" }
 		includedirs { "./include/" }
 		
