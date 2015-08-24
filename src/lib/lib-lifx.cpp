@@ -3,7 +3,7 @@
 //! @file Library implementation
 /////
 
-#include "lifx.h"
+#include <lib-lifx/lifx.h>
 
 #include <array>
 #include <chrono>

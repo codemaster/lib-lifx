@@ -35,6 +35,6 @@ solution "lib-lifx"
 		kind "StaticLib"
 		targetname "liblifx"
 		files { "./src/lib/*.cpp" }
-		includedirs { "./include/lib-lifx/" }
+		includedirs { "./include/" }
 		
 		CommonConfig()

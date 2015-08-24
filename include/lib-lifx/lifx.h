@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "lifx_messages.h"
+#include <lib-lifx/lifx_messages.h>
 
 #include <functional>
 #include <memory>
