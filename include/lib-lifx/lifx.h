@@ -21,9 +21,9 @@ namespace lifx
 {
 
 // Constant definitions
-constexpr unsigned int MAX_LIFX_PACKET_SIZE = 512;
+constexpr uint32_t MAX_LIFX_PACKET_SIZE = 512;
 constexpr uint8_t SERVICE_UDP = 1;
-constexpr unsigned int MAX_MESSAGES_PER_SECOND = 20;
+constexpr uint32_t MAX_MESSAGES_PER_SECOND = 20;
 
 constexpr auto LIFX_PROTOCOL = 1024;
 #ifdef _WIN32

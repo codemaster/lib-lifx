@@ -105,7 +105,7 @@ namespace lifx
 
     fd_set rfds;
     FD_ZERO(&rfds);
-    FD_SET(static_cast<unsigned int>(sock), &rfds);
+    FD_SET(static_cast<uint32_t>(sock), &rfds);
 
     int ret = select(sock+1, &rfds, nullptr, nullptr, &timeout);
     if (ret == -1)
@@ -328,7 +328,7 @@ namespace lifx
     if (!m_pendingSends.empty())
     {
       static auto start_time = std::chrono::steady_clock::now();
-      static unsigned int messages_sent = 0;
+      static uint32_t messages_sent = 0;
 
       // Check if we have exceeded the number of messages per second
       auto seconds_since_start =
