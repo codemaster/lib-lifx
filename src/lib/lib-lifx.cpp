@@ -107,7 +107,7 @@ namespace lifx
     FD_ZERO(&rfds);
     FD_SET(static_cast<unsigned int>(sock), &rfds);
 
-    int ret = select(sock, &rfds, nullptr, nullptr, &timeout);
+    int ret = select(sock+1, &rfds, nullptr, nullptr, &timeout);
     if (ret == -1)
     {
       return RunResult::RUN_ERROR;
