@@ -2,6 +2,9 @@ function CommonConfig()
 	language "C++"
 	
 	if os.get() ~= "windows" then
+		if os.get() == 'linux' then
+			buildoptions "-Wno-missing-field-initializers"
+		end
 		buildoptions "-std=c++11"
 	else
 		links { "ws2_32" }
