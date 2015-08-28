@@ -91,6 +91,16 @@ namespace lifx
     return std::move(ret);
   }
 
+  template<typename ... T> void LifxClient::ReceiveMessageTypes(const Header& header, const char* buffer)
+  {
+    // Fancy hack in a way:
+    // Abuse initialize lists so that we call @ref TryReceiveMessage
+    // for each of the provided types in the variadic template
+    // Thanks to Casey; ref: http://stackoverflow.com/a/21194071
+    int _[] = {0, ( TryReceiveMessage<T>(header, buffer), 0)...};
+    (void)_;
+  }
+
   LifxClient::RunResult LifxClient::RunOnce(long seconds, long milliseconds)
   {
     struct timeval timeout;
@@ -115,207 +125,42 @@ namespace lifx
       memcpy(&nh, buffer.data(), LIFX_HEADER_SIZE);
       auto header = FromNetwork(nh);
 
-      switch (header.type)
-      {
-        case message::device::GetService::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetService>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StateService::type:
-        {
-          auto msg = ReceiveMessage<message::device::StateService>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::GetHostInfo::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetHostInfo>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StateHostInfo::type:
-        {
-          auto msg = ReceiveMessage<message::device::StateHostInfo>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::GetHostFirmware::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetHostFirmware>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StateHostFirmware::type:
-        {
-          auto msg = ReceiveMessage<message::device::StateHostFirmware>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::GetWifiInfo::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetWifiInfo>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StateWifiInfo::type:
-        {
-          auto msg = ReceiveMessage<message::device::StateWifiInfo>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::GetWifiFirmware::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetWifiFirmware>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StateWifiFirmware::type:
-        {
-          auto msg = ReceiveMessage<message::device::StateWifiFirmware>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::GetPower::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetPower>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::SetPower::type:
-        {
-          auto msg = ReceiveMessage<message::device::SetPower>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StatePower::type:
-        {
-          auto msg = ReceiveMessage<message::device::StatePower>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::GetLabel::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetLabel>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::SetLabel::type:
-        {
-          auto msg = ReceiveMessage<message::device::SetLabel>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StateLabel::type:
-        {
-          auto msg = ReceiveMessage<message::device::StateLabel>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::GetVersion::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetVersion>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StateVersion::type:
-        {
-          auto msg = ReceiveMessage<message::device::StateVersion>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::GetInfo::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetInfo>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StateInfo::type:
-        {
-          auto msg = ReceiveMessage<message::device::StateInfo>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::Acknowledgement::type:
-        {
-          auto msg = ReceiveMessage<message::device::Acknowledgement>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::GetLocation::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetLocation>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StateLocation::type:
-        {
-          auto msg = ReceiveMessage<message::device::StateLocation>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::GetGroup::type:
-        {
-          auto msg = ReceiveMessage<message::device::GetGroup>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::StateGroup::type:
-        {
-          auto msg = ReceiveMessage<message::device::StateGroup>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::EchoRequest::type:
-        {
-          auto msg = ReceiveMessage<message::device::EchoRequest>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::device::EchoResponse::type:
-        {
-          auto msg = ReceiveMessage<message::device::EchoResponse>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::light::Get::type:
-        {
-          auto msg = ReceiveMessage<message::light::Get>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::light::SetColor::type:
-        {
-          auto msg = ReceiveMessage<message::light::SetColor>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::light::State::type:
-        {
-          auto msg = ReceiveMessage<message::light::State>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::light::GetPower::type:
-        {
-          auto msg = ReceiveMessage<message::light::GetPower>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::light::SetPower::type:
-        {
-          auto msg = ReceiveMessage<message::light::SetPower>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-        case message::light::StatePower::type:
-        {
-          auto msg = ReceiveMessage<message::light::StatePower>(buffer.data());
-          RunCallback(header, msg);
-          break;
-        }
-      }
+      ReceiveMessageTypes<
+        message::device::GetService,
+        message::device::StateService,
+        message::device::GetHostInfo,
+        message::device::StateHostInfo,
+        message::device::GetHostFirmware,
+        message::device::StateHostFirmware,
+        message::device::GetWifiInfo,
+        message::device::StateWifiInfo,
+        message::device::GetWifiFirmware,
+        message::device::StateWifiFirmware,
+        message::device::GetPower,
+        message::device::SetPower,
+        message::device::StatePower,
+        message::device::GetLabel,
+        message::device::SetLabel,
+        message::device::StateLabel,
+        message::device::GetVersion,
+        message::device::StateVersion,
+        message::device::GetInfo,
+        message::device::StateInfo,
+        message::device::Acknowledgement,
+        message::device::GetLocation,
+        message::device::StateLocation,
+        message::device::GetGroup,
+        message::device::StateGroup,
+        message::device::EchoRequest,
+        message::device::EchoResponse,
+        message::light::Get,
+        message::light::SetColor,
+        message::light::State,
+        message::light::GetPower,
+        message::light::SetPower,
+        message::light::StatePower
+      >(header, buffer.data());
+
       return RunResult::RUN_RECEIVED_DATA;
     }
 

@@ -75,7 +75,8 @@ class LifxClient
     //! @param[in] message The message that will be sent.
     //! @param[in] target The target to send the message to. If this is
     //! nullptr, the message will be broadcasted on the current network instead.
-    template<typename T> uint8_t Send(const T& message, const uint8_t target[8] = nullptr);
+    template<typename T> uint8_t Send(const T& message,
+      const uint8_t target[8] = nullptr);
     //! Sends a empty/default payload of a message type in the current
     //! network. If target is nullptr, the message will be broadcasted instead.
     //! @tparam T The message type to send.
@@ -104,10 +105,19 @@ class LifxClient
     //! Sends the buffer put together by the internal client system.
     //! @param[in] buffer The buffer to send over the network.
     int SendBuffer(const std::vector<char>& buffer);
-    //! Retrieves a message from a provided buffer.
+    //! Attempts to receive any of the provided types of messages
+    //! @tparam T Variadic template of possible types to receive
+    //! @param header The header that identifies the incoming message in the buffer
+    //! @param buffer The buffer containing the raw message
+    template<typename ... T> void ReceiveMessageTypes(const Header& header,
+      const char* buffer);
+    //! Tries to retrieve a message from a provided buffer
+    //! based on the provided header.
     //! @tparam T The type of the message to retrieve from the buffer.
+    //! @param[in] header The header received
     //! @param[in] buffer The buffer to retrieve the message from.
-    template<typename T> T ReceiveMessage(const char* buffer);
+    template<typename T> void TryReceiveMessage(const Header& header,
+      const char* buffer);
     //! Runs the callback registered to a message type.
     //! @tparam T The type of the message to run the callback for.
     //! @param[in] header The header of the received message.
@@ -196,8 +206,11 @@ void LifxClient::RegisterCallback(LifxClient::LifxCallback<T> callback)
 }
 
 template<typename T>
-T LifxClient::ReceiveMessage(const char* buffer)
+void LifxClient::TryReceiveMessage(const Header& header, const char* buffer)
 {
+  if (header.type != T::type)
+    return;
+
   T msg;
 
   if (buffer != nullptr)
@@ -206,7 +219,7 @@ T LifxClient::ReceiveMessage(const char* buffer)
     memcpy(&msg, (buffer + LIFX_HEADER_SIZE), sizeof(T));
   }
 
-  return std::move(msg);
+  RunCallback(header, std::move(msg));
 }
 
 template<typename T>
