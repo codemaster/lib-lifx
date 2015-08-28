@@ -97,6 +97,10 @@ class LifxClient
     //! Checks if there are any messages waiting in the client's queue to be sent.
     bool WaitingToSend() const;
   private:
+    //! Internal callback template for received messages
+    using LifxInternalCallback =
+      std::function<void(const Header header, const void* data)>;
+
     //! Sends the buffer put together by the internal client system.
     //! @param[in] buffer The buffer to send over the network.
     int SendBuffer(const std::vector<char>& buffer);
@@ -111,7 +115,7 @@ class LifxClient
     template<typename T> void RunCallback(const Header& header, const T& msg);
 
     //! Map that contains the callbacks that are waiting to be triggered.
-    std::unordered_map<uint16_t, void*> m_callbacks;
+    std::unordered_map<uint16_t, LifxInternalCallback> m_callbacks;
     //! Map that contains the buffers pending being sent.
     std::unordered_map<uint8_t, std::vector<char>> m_pendingSends;
     //! The source ID of the client; optionally provided in constructor.
@@ -180,8 +184,15 @@ uint8_t LifxClient::Send(const uint8_t target[8])
 template<typename T>
 void LifxClient::RegisterCallback(LifxClient::LifxCallback<T> callback)
 {
-  LifxCallback<T>* cbPtr = new LifxCallback<T>(callback);
-  m_callbacks[T::type] = static_cast<void*>(cbPtr);
+  m_callbacks[T::type] =
+  [callback = std::move(callback)]
+  (const Header header, const void* data)
+  {
+    if (header.type == T::type)
+    {
+      callback(header, *(static_cast<const T*>(data)));
+    }
+  };
 }
 
 template<typename T>
@@ -202,12 +213,9 @@ template<typename T>
 void LifxClient::RunCallback(const Header& header, const T& msg)
 {
   auto callbackIter = m_callbacks.find(T::type);
-  if (callbackIter != m_callbacks.end() &&
-    callbackIter->second != nullptr)
+  if (callbackIter != m_callbacks.cend())
   {
-    LifxCallback<T>* callback =
-      static_cast<LifxCallback<T>*>(callbackIter->second);
-    (*callback)(header, msg);
+    callbackIter->second(header, static_cast<const void*>(&msg));
   }
 }
 

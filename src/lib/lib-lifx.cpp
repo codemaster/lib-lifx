@@ -70,12 +70,6 @@ namespace lifx
 
   LifxClient::~LifxClient()
   {
-    // Delete all callbacks
-    for (auto iter : m_callbacks)
-    {
-      delete iter.second;
-    }
-
 #ifdef _WIN32
     // Close the socket
     closesocket(sock);
