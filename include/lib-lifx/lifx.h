@@ -33,9 +33,6 @@ constexpr auto LIFX_NETWORK_HEADER_SIZE = sizeof(lifx::NetworkHeader);
 constexpr auto LIFX_HEADER_SIZE = sizeof(lifx::Header);
 #endif
 
-NetworkHeader ToNetwork(const Header& h);
-Header FromNetwork(const NetworkHeader& nh);
-
 class LifxClient
 {
   public:
@@ -94,9 +91,9 @@ class LifxClient
     //! @param[in] seconds The number of seconds that the client may process for.
     //! @param[in] milliseconds The number of milliseconds in addition to
     //! the provided seconds that the client may process for.
-    RunResult RunOnce(long seconds = 0, long milliseconds = 1);
+    virtual RunResult RunOnce(long seconds = 0, long milliseconds = 1);
     //! Checks if there are any messages waiting in the client's queue to be sent.
-    bool WaitingToSend() const;
+    virtual bool WaitingToSend() const;
   private:
     //! Internal callback template for received messages
     using LifxInternalCallback =
@@ -123,6 +120,15 @@ class LifxClient
     //! @param[in] header The header of the received message.
     //! @param[in] msg The message payload.
     template<typename T> void RunCallback(const Header& header, const T& msg);
+
+    //! Converts a @ref Header to a @ref NetworkHeader
+    //! @param[in] h @ref Header to convert
+    //! @returns A converted @ref NetworkHeader object
+    static NetworkHeader ToNetwork(const Header& h);
+    //! Converts a @ref NetworkHeader to a @ref Header
+    //! @param[in] nh @ref NetworkHeader to convert
+    //! @returns A converted @ref Header object
+    static Header FromNetwork(const NetworkHeader& nh);
 
     //! Map that contains the callbacks that are waiting to be triggered.
     std::unordered_map<uint16_t, LifxInternalCallback> m_callbacks;

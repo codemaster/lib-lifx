@@ -199,7 +199,7 @@ namespace lifx
     return ! m_pendingSends.empty();
   }
 
-  NetworkHeader ToNetwork(const Header& h)
+  NetworkHeader LifxClient::ToNetwork(const Header& h)
   {
 #ifdef _WIN32
     NetworkHeader nh = { };
@@ -242,7 +242,7 @@ namespace lifx
 #endif
   }
 
-  Header FromNetwork(const NetworkHeader& nh)
+  Header LifxClient::FromNetwork(const NetworkHeader& nh)
   {
 #ifdef _WIN32
     Header h = { };
