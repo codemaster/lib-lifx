@@ -94,14 +94,14 @@ class LifxClient
     virtual RunResult RunOnce(long seconds = 0, long milliseconds = 1);
     //! Checks if there are any messages waiting in the client's queue to be sent.
     virtual bool WaitingToSend() const;
-  private:
+  protected:
     //! Internal callback template for received messages
     using LifxInternalCallback =
       std::function<void(const Header header, const void* data)>;
 
     //! Sends the buffer put together by the internal client system.
     //! @param[in] buffer The buffer to send over the network.
-    int SendBuffer(const std::vector<char>& buffer);
+    virtual int SendBuffer(const std::vector<char>& buffer);
     //! Attempts to receive any of the provided types of messages
     //! @tparam T Variadic template of possible types to receive
     //! @param header The header that identifies the incoming message in the buffer
