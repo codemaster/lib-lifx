@@ -11,6 +11,7 @@
 #include <memory>
 #include <random>
 #include <vector>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 
@@ -54,7 +55,7 @@ class LifxClient
     //! This creates the socket in which all LIFX messages are sent and received.
     //! @param[in] sourceId Optional Source ID for all messages. Can be
     //! checked on received messages to see which LifxClient sent the request.
-    LifxClient(int sourceId = 0);
+    LifxClient(uint32_t sourceId = 0);
     //! Default destructor. Deletes all callbacks and closes the created socket.
     virtual ~LifxClient();
     //! Broadcasts a message to all LIFX devices on the local network
@@ -135,19 +136,19 @@ class LifxClient
     //! Map that contains the buffers pending being sent.
     std::unordered_map<uint8_t, std::vector<char>> m_pendingSends;
     //! The source ID of the client; optionally provided in constructor.
-    int m_sourceId;
+    uint32_t m_sourceId;
 };
 
 template<typename T>
 uint8_t LifxClient::Broadcast(T&& message)
 {
-  return std::move(Send(std::forward<T>(message), nullptr));
+  return std::move(Send<T>(std::forward<T>(message), nullptr));
 }
 
 template<typename T>
 uint8_t LifxClient::Broadcast()
 {
-  return std::move(Send(nullptr));
+  return std::move(Send<T>(nullptr));
 }
 
 template<typename T>
@@ -157,7 +158,7 @@ uint8_t LifxClient::Send(const T& message, const uint8_t target[8])
   lifx::Header header = { };
   header.size = lifx::LIFX_HEADER_SIZE;
   header.origin = 0;
-  header.tagged = T::type == message::device::GetService::type ? 1 : 0;
+  header.tagged = std::remove_reference<T>::type::type == message::device::GetService::type ? 1 : 0;
   header.addressable = 1;
   header.protocol = LIFX_PROTOCOL;
   header.source = m_sourceId;
@@ -166,8 +167,8 @@ uint8_t LifxClient::Send(const T& message, const uint8_t target[8])
     header.target[i] = (target == nullptr) ? 0 : target[i];
   }
   header.ack_required = 0;
-  header.res_required = T::has_response ? 1 : 0;
-  header.type = T::type;
+  header.res_required = std::remove_reference<T>::type::has_response ? 1 : 0;
+  header.type = std::remove_reference<T>::type::type;
   // Generate a random sequence for each message
   uint8_t generatedSequence;
   do {

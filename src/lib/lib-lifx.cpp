@@ -30,7 +30,7 @@ namespace
 
 namespace lifx
 {
-  LifxClient::LifxClient(int sourceId)
+  LifxClient::LifxClient(uint32_t sourceId)
     : m_sourceId(std::move(sourceId))
   {
     // TODO: Error checking
