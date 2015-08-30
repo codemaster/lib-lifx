@@ -10,6 +10,11 @@ local gtest_root = _OPTIONS['gtest'] or './googletest/googletest/'
 function UnitTestConfig()
 	includedirs { gtest_root .. '/include/' }
 	links { 'gtest' }
+	if os.get() ~= 'windows' then
+		postbuildcommands { './%{cfg.buildtarget.abspath}' }
+	else
+		postbuildcommands { '%{cfg.buildtarget.abspath}' }
+	end
 end
 
 function LifxConfig()
@@ -18,9 +23,10 @@ function LifxConfig()
 	
 	if os.get() ~= "windows" then
 		if os.get() == 'linux' then
-			buildoptions "-Wno-missing-field-initializers"
+			buildoptions { "-Wno-missing-field-initializers", "-std=c++11" }
+		else
+			buildoptions "-std=c++14"
 		end
-		buildoptions "-std=c++14"
 	else
 		links { "ws2_32" }
 	end
