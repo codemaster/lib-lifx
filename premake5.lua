@@ -38,6 +38,11 @@ end
 function CommonConfig()
 	language "C++"
 	
+	if _ACTION ~= nil and string.sub(_ACTION,1,2) == 'vs' then
+		buildoptions { "/MP" }
+		flags { "NoMinimalRebuild" }
+	end
+
 	configuration "Debug"
 		defines { "DEBUG" }
 		flags { "Symbols" }
