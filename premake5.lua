@@ -5,15 +5,18 @@ newoption
 	value = 'path',
 }
 
+-- Premake bug on Mac: http://industriousone.com/topic/how-remove-flags-ldflags
+premake.tools.gcc.ldflags.flags._Symbols = nil
+
 local gtest_root = _OPTIONS['gtest'] or './googletest/googletest/'
 
 function UnitTestConfig()
 	includedirs { gtest_root .. '/include/' }
 	links { 'gtest' }
 	if os.get() ~= 'windows' then
-		postbuildcommands { './%{cfg.buildtarget.abspath}' }
+		postbuildcommands { './%{cfg.buildtarget.relpath}' }
 	else
-		postbuildcommands { '%{cfg.buildtarget.abspath}' }
+		postbuildcommands { '%{cfg.buildtarget.relpath}' }
 	end
 end
 
@@ -48,6 +51,8 @@ solution "lib-lifx"
 	configurations { "Debug", "Release" }
 	warnings "Extra"
 	location "build"
+	platforms { "x32", "x64" }
+	objdir "build/obj/%{cfg.buildcfg}"
 	
 	project "lifx-cli"
 		kind "ConsoleApp"
@@ -87,7 +92,6 @@ solution "lib-lifx"
 	-- gtest project adapted from Jim Garrison's (@garrison) premake4 script
 	-- http://jimgarrison.org/techblog/googletest-premake4.html
 	project "gtest"
-		language "C++"
 		kind "StaticLib"
 		includedirs { gtest_root, gtest_root .. '/include/' }
 		files { gtest_root .. '/src/gtest-all.cc', gtest_root .. '/src/gtest_main.cc' }

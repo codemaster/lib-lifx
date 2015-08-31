@@ -100,7 +100,7 @@ class TestLifxClient : public lifx::LifxClient
     int SendBuffer(const std::vector<char>& buffer) override
     {
       // Don't actually send anything
-      return buffer.size();
+      return static_cast<int>(buffer.size());
     }
 
     template<typename ... T> void ReceiveMessageTypes(const lifx::Header& header,

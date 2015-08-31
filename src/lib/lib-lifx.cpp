@@ -25,7 +25,11 @@ namespace
   struct sockaddr_in listen_addr = { };
   struct sockaddr_in send_direct_addr = { };
   struct sockaddr_in broadcast_addr = { };
+#ifdef _WIN32
+  SOCKET sock;
+#else
   int sock;
+#endif
 }
 
 namespace lifx
@@ -86,7 +90,7 @@ namespace lifx
     if (buffer.empty())
       return 0;
 
-    int ret = sendto(sock, buffer.data(), buffer.size(), 0,
+    int ret = sendto(sock, buffer.data(), static_cast<int>(buffer.size()), 0,
       (struct sockaddr*)&broadcast_addr, sockAddrLen);
     return std::move(ret);
   }
@@ -111,7 +115,7 @@ namespace lifx
     FD_ZERO(&rfds);
     FD_SET(static_cast<uint32_t>(sock), &rfds);
 
-    int ret = select(sock+1, &rfds, nullptr, nullptr, &timeout);
+    int ret = select(static_cast<int>(sock)+1, &rfds, nullptr, nullptr, &timeout);
     if (ret == -1)
     {
       return RunResult::RUN_ERROR;
