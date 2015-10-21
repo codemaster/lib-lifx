@@ -7,13 +7,18 @@ lib-lifx is a C++14 library for controlling LIFX devices. This library also incl
 - C++14 compiler
 
 ### Compiling
-To compile lib-lifx, init & update the git submodules, then premake with the user-preferred action in the root directory of the git checkout. Afterwards, you can compile in the build directory. When compiling, unit tests will run automatically to ensure the library is functioning correctly.
+To compile lib-lifx, init & update the git submodules, then run premake with your preferred action in the root directory of the git checkout. Afterwards, you can compile in the build directory. When compiling, unit tests will run automatically to ensure the library is functioning correctly.
 
 For example:
+
 1. `git submodule init`
+
 2. `git submodule update`
+
 3. `premake5 gmake`
+
 4. `cd build`
+
 5. `make -j`
 
 ### License
