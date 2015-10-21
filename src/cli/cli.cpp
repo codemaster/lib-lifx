@@ -101,22 +101,58 @@ bool DoForFilteredLightbulbs(const std::string& filter,
   return ret;
 }
 
+void PrintUsage(char** const argv)
+{
+  std::cout << "Usage: " << argv[0] <<
+  " <filter> <command> [arguments, ...]" << std::endl << std::endl;
+}
+
+void PrintHelp(char** const argv)
+{
+  std::cout <<
+  "LIFX Command Line Interface tool" << std::endl;
+  PrintUsage(argv);
+  std::cout <<
+  "Filter:" << std::endl <<
+  "'all' to perform the command on all LAN-discovered lights." << std::endl <<
+  "Alternatively, a full or partial name can be provided." << std::endl << std::endl <<
+  "Commands:" << std::endl <<
+  "help:   Display usage informaiton." << std::endl <<
+  "off:    Turns off a light." << std::endl <<
+  "on:     Turns on a light." << std::endl <<
+  "status: Obtains the status & info of a light." << std::endl <<
+  "color:  Sets the color of a light." << std::endl <<
+  "        1st argument is the name of the color." << std::endl <<
+  "        2nd argument is how many miliseconds it should " <<
+  "take to tranition to the new color." << std::endl <<
+  std::endl;
+}
+
 void RunCommands(int argc, char** argv)
 {
   if (argc < 2)
   {
-    // TODO: print help
+    PrintUsage(argv);
     return;
   }
 
   std::string filter("all");
   std::string command("");
+  std::vector<std::string> arguments;
   // Options provided
   if (argc > 2)
   {
     // Filter and command provided
     filter = argv[1];
     command = argv[2];
+    // Append the arguments
+    if (argc > 3)
+    {
+      for (auto i = 3; i < argc; ++i)
+      {
+        arguments.emplace_back(std::move(argv[i]));
+      }
+    }
   }
   else
   {
@@ -127,10 +163,25 @@ void RunCommands(int argc, char** argv)
   std::transform(filter.begin(), filter.end(), filter.begin(), ::tolower);
   // Convert the command to all lowercase
   std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+  // Convert all arguments to all lowercase
+  for (size_t i = 0; i < arguments.size(); ++i)
+  {
+    std::transform(arguments[i].begin(), arguments[i].end(),
+      arguments[i].begin(), ::tolower);
+  }
+
+  // Handle the help command
+  if (command == "help" ||
+      command == "-help" ||
+      command == "--help")
+  {
+    PrintHelp(argv);
+    return;
+  }
 
   // Find all the lightbulbs based on the filter
   DoForFilteredLightbulbs(filter,
-    [&command](const Lightbulb& bulb) -> bool
+    [&command, &arguments, &argv](const Lightbulb& bulb) -> bool
   {
     if (command == "off")
     {
@@ -156,7 +207,27 @@ void RunCommands(int argc, char** argv)
 
     if (command == "color")
     {
-      // TODO
+      // At least 1 argument (color) must be provided
+      if (arguments.size() > 0)
+      {
+        // Find the color provided
+        auto color = colors.find(arguments[0]);
+        if (color == colors.end())
+        {
+          std::cerr << "Unknown color specified: '" << arguments[0] << "'" << std::endl;
+        } else {
+          // By default, immediately set the color
+          lifx::message::light::SetColor colorMsg{color->second, 0};
+          // Optional second argument is for the number of milliseconds to change the color over
+          if (arguments.size() > 1)
+          {
+            colorMsg.duration = std::stoul(arguments[1]);
+          }
+          g_client.Send<lifx::message::light::SetColor>(colorMsg, bulb.mac_address.data());
+        }
+      } else {
+        std::cerr << "You must specify a color." << std::endl;
+      }
     }
 
     return true;
