@@ -241,6 +241,21 @@ void RunCommands(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
+  // Check if we are fast-tracking to the help command
+  if (argc > 1)
+  {
+    if (strcmp(argv[1], "help") == 0 ||
+        strcmp(argv[1], "--help") == 0 ||
+        strcmp(argv[1], "-help") == 0)
+    {
+      PrintHelp(argv);
+      return 0;
+    }
+  } else if (argc == 1) {
+    PrintUsage(argv);
+    return 0;
+  }
+
   g_client.RegisterCallback<lifx::message::device::StateService>(
     [](const lifx::Header& header, const lifx::message::device::StateService& msg)
   {
